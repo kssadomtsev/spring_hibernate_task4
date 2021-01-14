@@ -9,12 +9,17 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class UserDaoImp implements UserDao {
 
+    private final SessionFactory sessionFactory;
+
     @Autowired
-    private SessionFactory sessionFactory;
+    public UserDaoImp(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
     @Override
     public void add(User user) {
@@ -29,16 +34,15 @@ public class UserDaoImp implements UserDao {
     }
 
     @Override
-    public User getUserByCar(String model, int series) {
+    public Optional<User> getUserByCar(String model, int series) {
         String HQL = "select user from User user where user.car.model = :model and user.car.series = :series";
-        Query query = sessionFactory.getCurrentSession().createQuery(HQL)
+        return sessionFactory.getCurrentSession().createQuery(HQL, User.class)
                 .setParameter("model", model)
-                .setParameter("series", series);
-        try {
-            return (User) query.getSingleResult();
-        } catch (NoResultException exception) {
-            return null;
-        }
+                .setParameter("series", series)
+                .setMaxResults(1)
+                .getResultList()
+                .stream()
+                .findFirst();
     }
 
 }

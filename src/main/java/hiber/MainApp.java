@@ -40,6 +40,9 @@ public class MainApp {
         User user3 = userService.getUserByCar("Samara", 15);
         System.out.println(user3);
 
+        User user4 = userService.getUserByCar("Samaras", 1);
+        System.out.println(user4);
+
         context.close();
     }
 }
